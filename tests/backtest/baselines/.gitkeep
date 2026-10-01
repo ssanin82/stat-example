@@ -1,0 +1,8 @@
+# Placeholder so the baselines/ directory is tracked by git.
+#
+# Baselines themselves are gitignored unless explicitly checked in by
+# the operator (see .gitignore for the inclusion rule). The full
+# pattern is: operator runs `python scripts/backtest/capture_baseline.py
+# --fixture <path>` once a fixture's behaviour is verified by hand,
+# then `git add tests/backtest/baselines/<fixture>.json` to commit it
+# as the regression-comparison target.

@@ -1,0 +1,43 @@
+{
+  "name": "dtc-mm-as-dashboard",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Operator-observation dashboard for the dtc-mm-as bot fleet (OKX + Binance).",
+  "scripts": {
+    "dev": "next dev -p 8001",
+    "build": "next build",
+    "start": "next start -p 8001",
+    "lint": "next lint --dir app --dir lib --max-warnings 9999",
+    "lint:strict": "next lint --dir app --dir lib --max-warnings 0",
+    "lint:fix": "next lint --dir app --dir lib --fix",
+    "build:map": "node scripts/build-region-maps.mjs",
+    "build:death-star": "node scripts/build-death-star.mjs",
+    "build:earth-globe": "node scripts/build-earth-globe.mjs"
+  },
+  "dependencies": {
+    "@aws-sdk/client-ec2": "^3.658.0",
+    "@aws-sdk/client-s3": "^3.658.0",
+    "@aws-sdk/client-ssm": "^3.658.0",
+    "@aws-sdk/client-sts": "^3.658.0",
+    "@aws-sdk/credential-providers": "^3.658.0",
+    "next": "^15.1.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
+  "devDependencies": {
+    "@types/d3-geo": "^3.1.0",
+    "@types/node": "22.9.0",
+    "@types/react": "19.0.0",
+    "@types/react-dom": "19.0.0",
+    "@types/topojson-client": "^3.1.5",
+    "autoprefixer": "10.4.20",
+    "d3-geo": "^3.1.1",
+    "eslint": "^8.57.1",
+    "eslint-config-next": "^15.1.0",
+    "postcss": "8.4.49",
+    "tailwindcss": "3.4.15",
+    "topojson-client": "^3.1.0",
+    "typescript": "5.6.3",
+    "world-atlas": "^2.0.2"
+  }
+}

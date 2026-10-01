@@ -1,0 +1,29 @@
+# credentials — never commit
+.env
+*.env
+!*.env.example
+.okx_credentials
+*.pem
+*.key
+
+# python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+env/
+venv/
+.venv/
+
+# data and results — never commit
+data/
+logs/
+snapshots/
+reports/
+simulations/
+tmp/
+*.parquet
+*.csv
+*.db
+*.sqlite

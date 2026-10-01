@@ -1,0 +1,462 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html,
+  body {
+    @apply bg-bg text-gray-100;
+  }
+  body {
+    font-feature-settings: "tnum" 1;
+    /* Tabular numbers everywhere -- digits in tables shouldn't shift
+     * width when values change. */
+
+    /* Tiled background with a 50% dark overlay so the pattern reads
+     * as a quiet texture rather than competing with the data. The
+     * trick: layer a semi-transparent solid-color "linear-gradient"
+     * (effectively a flat fill) ON TOP of the image. CSS doesn't
+     * support background-image opacity directly, but stacking
+     * backgrounds achieves the same effect.
+     *
+     * To dial brightness:
+     *   - 0.4 alpha = lighter (more pattern visible)
+     *   - 0.5 alpha = current (half-strength)
+     *   - 0.7 alpha = nearly invisible pattern
+     *
+     * Both layers tile + stay fixed so the pattern doesn't scroll
+     * with content. The base ``bg-bg`` color shows through any
+     * remaining transparency in the PNG. */
+    background-image: linear-gradient(
+        rgba(0, 0, 0, 0.5),
+        rgba(0, 0, 0, 0.5)
+      ),
+      url("/background.png");
+    background-repeat: repeat;
+    background-attachment: fixed;
+  }
+}
+
+/* =====================================================================
+ * Spaceship theme — opt-in via ``<body class="theme-spaceship">``.
+ * Adds clipped corners + faint cyan glow + corner brackets to all
+ * dark cards so the dashboard reads as a sci-fi cockpit. Pure CSS,
+ * no JSX restructuring; rollback = remove the class on body and
+ * delete this block.
+ * =================================================================== */
+
+/* Numeric headlines (price ticks, equity, etc.) get a faint cyan
+   text-shadow under the spaceship theme so they read as "screen
+   glow" rather than flat type. Targets the existing accent-amber
+   class commonly used for Y-axis price labels in chart areas, plus
+   the kline header price element. Conservative — applies only to
+   classes that already imply "primary numeric readout". */
+.theme-spaceship .text-accent-amber {
+  text-shadow: 0 0 6px rgba(245, 158, 11, 0.35);
+}
+.theme-spaceship .text-accent-green {
+  text-shadow: 0 0 6px rgba(61, 220, 151, 0.25);
+}
+.theme-spaceship .text-accent-red {
+  text-shadow: 0 0 6px rgba(255, 107, 107, 0.25);
+}
+/* Phase 4G (v1.4.214) — CALM mode glow. Same fade depth as the
+   green NORMAL glow so the two states feel visually parallel. */
+.theme-spaceship .text-accent-blue {
+  text-shadow: 0 0 6px rgba(76, 201, 240, 0.25);
+}
+
+/* ---- Globe component (used in the right-column under Latency) ---- */
+
+.spaceship-globe {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  /* Size history:
+   *   - Original: 220
+   *   - 2026-05-09 (1.5× scale-up): 330 — operator wanted it bigger
+   *   - v1.5.262 (halved): 165 — operator wanted it smaller. Frees up
+   *     vertical space at the top of the right rail so the Activity
+   *     Calendar / Reference Data stack reaches viewport quicker.
+   * The world-clocks / activity-calendar-button / reference-data
+   * panels below KEEP the 330 px width on purpose — the globe is
+   * decorative; the panels are operational, and at-a-glance reading
+   * benefits from the larger panel width. */
+  max-width: 165px;
+  margin: 0 auto;
+  /* Backlight scaled down with the globe so it stays in proportion. */
+  filter: drop-shadow(0 0 9px rgba(6, 182, 212, 0.2));
+}
+
+.spaceship-globe svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+@keyframes spaceship-globe-rotate {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.spaceship-globe-spin {
+  transform-origin: 50% 50%;
+  animation: spaceship-globe-rotate 60s linear infinite;
+}
+
+.spaceship-globe-spin-slow {
+  transform-origin: 50% 50%;
+  animation: spaceship-globe-rotate 120s linear infinite reverse;
+}
+
+/* ---- World clocks (under the globe) ---- */
+
+.world-clocks,
+.reference-data {
+  margin: 14px auto 0;
+  max-width: 330px;          /* match globe width */
+  padding: 10px 12px;
+  border: 1px solid rgba(6, 182, 212, 0.35);
+  border-radius: 4px;
+  background: rgba(6, 182, 212, 0.04);
+  font-family: var(--font-geist-mono, ui-monospace, SFMono-Regular, monospace);
+  font-size: 0.72rem;
+  color: rgba(6, 182, 212, 0.85);
+}
+
+/* v1.5.260 Reference Data banner — instrument metadata snapshot
+   that sits in the same right-rail wireframe stack as the world
+   clocks. Same border/background/typography palette as
+   ``.world-clocks``; rows use a 2-column grid (label left, value
+   right). Sub-rows are dim, "1 tick in bps" emphasised. */
+
+.reference-data-header {
+  font-size: 0.68rem;
+  letter-spacing: 0.12em;
+  color: rgba(6, 182, 212, 0.7);
+  text-transform: uppercase;
+  padding-bottom: 6px;
+  margin-bottom: 6px;
+  border-bottom: 1px dashed rgba(6, 182, 212, 0.18);
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.reference-data-symbol {
+  color: rgba(125, 211, 252, 0.95);
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: none;
+}
+
+.reference-data-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 10px;
+  padding: 4px 0;
+  align-items: baseline;
+}
+
+.reference-data-row + .reference-data-row {
+  border-top: 1px dashed rgba(6, 182, 212, 0.10);
+}
+
+.reference-data-label {
+  color: rgba(6, 182, 212, 0.7);
+  font-size: 0.68rem;
+  letter-spacing: 0.06em;
+}
+
+.reference-data-value {
+  color: rgba(6, 182, 212, 0.95);
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  text-shadow: 0 0 6px rgba(6, 182, 212, 0.18);
+  white-space: nowrap;
+}
+
+.reference-data-value.dim {
+  color: rgba(6, 182, 212, 0.45);
+  text-shadow: none;
+}
+
+.reference-data-value.accent {
+  color: rgba(125, 211, 252, 1);
+  text-shadow: 0 0 6px rgba(6, 182, 212, 0.4);
+}
+
+.reference-data-foot {
+  margin-top: 6px;
+  padding-top: 6px;
+  border-top: 1px dashed rgba(6, 182, 212, 0.18);
+  color: rgba(6, 182, 212, 0.45);
+  font-size: 0.62rem;
+  letter-spacing: 0.04em;
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.world-clocks-row {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  gap: 10px;
+  padding: 5px 0;
+  align-items: baseline;
+  border-bottom: 1px dashed rgba(6, 182, 212, 0.18);
+}
+
+.world-clocks-row:last-child {
+  border-bottom: none;
+}
+
+.world-clocks-city {
+  letter-spacing: 0.12em;
+  color: rgba(6, 182, 212, 0.7);
+  font-size: 0.68rem;
+}
+
+.world-clocks-time {
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  text-shadow: 0 0 6px rgba(6, 182, 212, 0.3);
+  white-space: nowrap;
+}
+
+/* ---- Right-rail HUD buttons (sit under the world clocks) ----
+   Shares the wireframe vocabulary of ``.world-clocks``: cyan border
+   at 0.35 opacity, faint cyan tint background, monospace font,
+   subtle text-shadow on hover for the same "glowing readout" feel.
+   Width matches the clocks block (``max-width: 330px``) so the
+   right-rail bottom stack reads as a single visual unit.
+
+   v1.3.96 — first consumer: ``.download-stats-button`` (operator
+              wanted the Download Stats button to look part of the
+              wireframe stack).
+   v1.5.249 — ``.activity-calendar-button`` joined to open the
+              Market Activity Calendar modal. Identical rules; the
+              class names exist purely to keep the JSX self-documenting. */
+
+.download-stats-button,
+.activity-calendar-button {
+  display: block;
+  margin: 10px auto 0;
+  max-width: 330px;          /* same width as world-clocks + globe */
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid rgba(6, 182, 212, 0.35);
+  border-radius: 4px;
+  background: rgba(6, 182, 212, 0.04);
+  font-family: var(--font-geist-mono, ui-monospace, SFMono-Regular, monospace);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  color: rgba(6, 182, 212, 0.85);
+  text-align: center;
+  cursor: pointer;
+  transition: border-color 120ms ease, background-color 120ms ease,
+              color 120ms ease, text-shadow 120ms ease;
+}
+
+.download-stats-button:hover,
+.activity-calendar-button:hover {
+  border-color: rgba(6, 182, 212, 0.6);
+  background: rgba(6, 182, 212, 0.08);
+  color: rgba(125, 211, 252, 1);
+  text-shadow: 0 0 6px rgba(6, 182, 212, 0.4);
+}
+
+.download-stats-button:active,
+.activity-calendar-button:active {
+  background: rgba(6, 182, 212, 0.12);
+}
+
+.download-stats-button:focus-visible,
+.activity-calendar-button:focus-visible {
+  outline: 1px solid rgba(6, 182, 212, 0.7);
+  outline-offset: 2px;
+}
+
+.world-clocks-date {
+  text-align: right;
+  color: rgba(6, 182, 212, 0.55);
+  font-size: 0.68rem;
+  white-space: nowrap;
+}
+
+/* ---- World-clock per-market commentary (v1.5.158) ----
+   Operator-requested bottom panel that translates the current
+   UTC hour into a per-region market state. Operator analyses
+   PnL by Dubai time; this saves the mental conversion. */
+
+.world-clocks-commentary {
+  margin-top: 10px;
+  padding-top: 8px;
+  border-top: 1px dashed rgba(6, 182, 212, 0.18);
+}
+
+.world-clocks-commentary-header {
+  font-size: 0.6rem;
+  letter-spacing: 0.18em;
+  color: rgba(6, 182, 212, 0.55);
+  text-align: center;
+  margin-bottom: 6px;
+  font-weight: 600;
+}
+
+.world-clocks-commentary-row {
+  display: grid;
+  grid-template-columns: 56px auto;
+  gap: 8px;
+  padding: 2px 0;
+  font-size: 0.68rem;
+  align-items: baseline;
+}
+
+.world-clocks-commentary-tag {
+  color: rgba(6, 182, 212, 0.7);
+  letter-spacing: 0.1em;
+  font-weight: 600;
+}
+
+.world-clocks-commentary-state {
+  color: rgba(6, 182, 212, 0.55);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.world-clocks-commentary-state.active {
+  color: rgba(6, 182, 212, 0.9);
+}
+
+.world-clocks-commentary-state.peak {
+  color: rgba(125, 211, 252, 1);
+  text-shadow: 0 0 6px rgba(6, 182, 212, 0.4);
+}
+
+.world-clocks-commentary-state.quiet {
+  color: rgba(6, 182, 212, 0.35);
+}
+
+/* ---- Header download-stats button (v1.5.158) ----
+   Compact variant placed in the header chip row next to BOT UP.
+   Looks like an action button (hover state, cursor-pointer) but
+   sized to match the chip baseline so it doesn't widen the
+   header. Distinct from the static informational chips
+   (VERSION / BOT status / BOT UP) by a subtle cyan tint that
+   matches the existing right-rail .download-stats-button. */
+
+.header-download-stats-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 1px 8px;
+  height: 1.4rem;
+  border: 1px solid rgba(6, 182, 212, 0.4);
+  border-radius: 0.25rem;
+  background: rgba(6, 182, 212, 0.06);
+  color: rgba(6, 182, 212, 0.85);
+  font-family: var(--font-geist-mono, ui-monospace, SFMono-Regular, monospace);
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: border-color 120ms ease, background-color 120ms ease,
+              color 120ms ease, text-shadow 120ms ease;
+}
+
+.header-download-stats-button:hover {
+  border-color: rgba(6, 182, 212, 0.7);
+  background: rgba(6, 182, 212, 0.12);
+  color: rgba(125, 211, 252, 1);
+  text-shadow: 0 0 4px rgba(6, 182, 212, 0.4);
+}
+
+.header-download-stats-button:active {
+  background: rgba(6, 182, 212, 0.18);
+}
+
+.header-download-stats-button:focus-visible {
+  outline: 1px solid rgba(6, 182, 212, 0.7);
+  outline-offset: 1px;
+}
+
+/* ---- Stats-panel tab backgrounds — geo-wireframe maps ---- */
+
+/* Per-tab decorative backgrounds. d3-geo wireframe maps centred on
+   cities in the operator's working footprint, plus an orthographic
+   globe (Bot Stats) centred on Dubai.
+   Applied via class toggles in page.tsx:
+     - Open Orders tab    → Singapore / SE-Asia map
+     - Order History tab  → Jakarta / Indonesia map
+     - Fill History tab   → Bangkok / mainland SE-Asia map
+     - Bot Stats tab      → Earth globe (Dubai apex, top-anchored)
+     - Market tab         → Hong Kong / South-China-Sea map
+     - Config tab         → Persian Gulf / UAE map
+   Region maps generated by ``frontend/scripts/build-region-maps.mjs``;
+   Earth globe by ``frontend/scripts/build-earth-globe.mjs``.
+   ----
+   Maps live on ``::before`` pseudo-elements so their opacity doesn't
+   cascade to the tab's children (table data stays fully bright).
+   ----
+   THE OPACITY KNOB — single CSS custom property below controls BOTH
+   tabs' map dimming. Change ``--stats-tab-bg-opacity`` to dial the
+   whole panel: 0.05 = barely-there, 0.20 = subtle texture (current),
+   0.50 = clearly visible, 1.0 = full strength. */
+.stats-tab-bg {
+  position: relative;
+  --stats-tab-bg-opacity: 0.05;
+}
+
+.stats-tab-bg::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center center;
+  background-repeat: no-repeat;
+  opacity: var(--stats-tab-bg-opacity);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.stats-tab-bg.stats-tab-open-bg::before {
+  background-image: url("/singapore-wireframe.svg");
+}
+
+.stats-tab-bg.stats-tab-orders-bg::before {
+  background-image: url("/jakarta-wireframe.svg");
+}
+
+.stats-tab-bg.stats-tab-fills-bg::before {
+  background-image: url("/bangkok-wireframe.svg");
+}
+
+.stats-tab-bg.stats-tab-market-bg::before {
+  background-image: url("/hong-kong-wireframe.svg");
+}
+
+.stats-tab-bg.stats-tab-config-bg::before {
+  background-image: url("/persian-gulf-wireframe.svg");
+}
+
+/* Bot Stats variant — Earth wireframe globe centred on Dubai.
+   Unlike the region maps it is NOT a full-cover background: anchored
+   top-centred at a fixed size so it sits visually above the Session
+   PnL chart at the bottom of the tab, behind the 3×3 cards grid. The
+   same opacity knob applies uniformly across all six tabs. */
+.stats-tab-bg.stats-tab-bot-stats-bg::before {
+  background-image: url("/earth-globe-wireframe.svg");
+  background-size: 992px 992px;
+  background-position: center 24px;
+  background-repeat: no-repeat;
+}
+

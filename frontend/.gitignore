@@ -1,0 +1,15 @@
+# Next.js / Node
+node_modules/
+.next/
+out/
+*.tsbuildinfo
+.next-env.d.ts
+
+# Dotenv overrides (the dashboard reads from tests/integration/.env
+# via the repo-relative path; nothing should land here, but make
+# sure local-only env files don't sneak into a commit if someone
+# experiments).
+.env
+.env.local
+.env.development
+.env.production

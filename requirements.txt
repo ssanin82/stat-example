@@ -1,0 +1,37 @@
+fastapi>=0.109.0,<1
+uvicorn[standard]>=0.27.0,<1
+pydantic>=2.5.0,<3
+pydantic-settings>=2.1.0,<3
+python-dotenv>=1.0.0,<2
+httpx[http2]>=0.26.0,<1
+# AWS SDK -- bot writes a small JSON heartbeat to the EC2-attached
+# logs S3 bucket every ~30s so the operator dashboard can display
+# bot session uptime (vs. EC2 host uptime which doesn't reset on
+# `ops deploy`). See app/heartbeat.py.
+boto3>=1.34.0,<2
+hyperliquid-python-sdk>=0.8.0
+websocket-client>=1.6.0,<2
+eth-account>=0.10.0,<1
+pynacl>=1.5.0,<2
+pytest>=7.4.0,<9
+
+# --- Reporting (tools.postmortem only) ---
+# Not imported at bot runtime; only loaded when the operator runs the
+# performance / risk report tool. Keeps the trading process lean
+# while letting the analytics path use the standard quant stack.
+pandas>=2.1.0,<3
+numpy>=1.26.0,<3
+matplotlib>=3.8.0,<4
+# plotly powers the regime decomposition section of the postmortem
+# report: interactive time series, per-regime markout distributions,
+# PnL attribution charts. Self-contained output (chart library
+# inlined into the HTML), no server needed. Used offline only —
+# never imported by the trading-loop code path.
+plotly>=5.20.0,<6
+# pyarrow is the parquet engine for ``tools.postmortem`` (venue-rest
+# klines fetcher) and ``scripts/klines.py``. Optional at runtime —
+# when missing, the klines saver falls back to CSV with a clear log
+# line. Install via ``pip install -r requirements.txt`` to get
+# parquet output (more compact + preserves dtypes for downstream
+# pandas consumers / LLM input files).
+pyarrow>=15.0.0
